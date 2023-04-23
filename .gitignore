@@ -2,10 +2,14 @@ HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
+/src/main/resources/
 !**/src/test/**/target/
 .git
 logs
+mvnw.cmd
+mvnw
 rebel.xml
+py-shipping.iml
 .DS_Store
 
 ### STS ###
