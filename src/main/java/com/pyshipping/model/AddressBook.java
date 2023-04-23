@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class AddressBook {
-    private static final long addressBookVersionUID = 1L;
+    private static final long serialVersionUID = -1;
 
     private String id;
     private String userId;

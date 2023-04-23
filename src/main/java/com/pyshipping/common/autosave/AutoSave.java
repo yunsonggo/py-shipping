@@ -20,7 +20,7 @@ public class AutoSave implements MetaObjectHandler {
         metaObject.setValue("updateTime",LocalDateTime.now());
 
         // 通过线程ThreadLocal获取当前已登录用户的ID
-        String id = BaseContext.getCurrentId();
+        String id = BaseContext.getEmployeeId();
         metaObject.setValue("createUser",id);
         metaObject.setValue("updateUser",id);
         log.info("auto insert fill");
@@ -30,7 +30,7 @@ public class AutoSave implements MetaObjectHandler {
     public void updateFill(MetaObject metaObject) {
         metaObject.setValue("updateTime",LocalDateTime.now());
         // 通过线程ThreadLocal获取当前已登录用户的ID
-        String id = BaseContext.getCurrentId();
+        String id = BaseContext.getEmployeeId();
         metaObject.setValue("updateUser",id);
         log.info("auto update fill");
     }

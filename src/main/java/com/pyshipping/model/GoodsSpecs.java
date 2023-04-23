@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 public class GoodsSpecs {
-    private static final long goodsSpecsVersionUID = 1L;
+    private static final long serialVersionUID = -1;
 
     private String id;
     private String goodsId;

@@ -23,4 +23,5 @@ public class BaseContext {
     public static String getUserId() {
         return userThreadLocal.get();
     }
+
 }

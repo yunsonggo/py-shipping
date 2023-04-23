@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class User {
-    private static final long userVersionUID = 1L;
+    private static final long serialVersionUID = -1;
 
     private String id;
     private String name;

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class Setmeal {
-    private static final long setmealVersionUID = 1L;
+    private static final long serialVersionUID = -1;
 
     private String id;
     private String categoryId;

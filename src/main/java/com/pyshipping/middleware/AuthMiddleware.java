@@ -49,7 +49,9 @@ public class AuthMiddleware implements Filter {
                 "/employee/logout",
                 "/static/**",
                 "/upload/download",
-                "/sms/**"
+                "/sms/**",
+                "/goods/page",
+                "/setmeal/page"
         };
         // 判断是否放行
         if (isNext(uri,urls)) {

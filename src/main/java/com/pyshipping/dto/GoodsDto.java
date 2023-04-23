@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class GoodsDto extends Goods {
+    private static final long serialVersionUID = -1;
 
     @TableField(exist = false)
     Integer copies;

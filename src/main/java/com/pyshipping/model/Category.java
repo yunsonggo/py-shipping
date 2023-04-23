@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  */
 @Data
 public class Category {
-    private static final long categoryVersionUID = 1L;
+    private static final long serialVersionUID = -1;
 
     private String  id; //'主键'
     private Integer type;//'类型   1 商品分类 2 套餐分类'

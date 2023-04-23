@@ -3,6 +3,7 @@ package com.pyshipping.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pyshipping.common.codes.Codes;
+import com.pyshipping.common.keys.Keys;
 import com.pyshipping.common.msg.Msg;
 import com.pyshipping.dto.SetmealDto;
 import com.pyshipping.model.Category;
@@ -15,6 +16,7 @@ import com.pyshipping.service.SetmealSrv;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
@@ -22,6 +24,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -39,6 +43,13 @@ public class SetmealController {
 
     @Autowired
     private BrandSrv brandSrv;
+
+    @Autowired
+    private Keys keys;
+
+    @Autowired
+    private RedisTemplate<Object, Object> redisTemplate;
+
 
     // 条件分页数据
     @GetMapping("/list")
@@ -93,20 +104,93 @@ public class SetmealController {
         return Msg.success(Codes.OK,"ok",dtoPage);
     }
 
+    // 带缓存 分类 分页数据
+    @GetMapping("/page")
+    public Msg<Page> pageList(Setmeal setmeal) {
+        List<SetmealDto> list = null;
+        Page<SetmealDto> dtoPage = new Page<>();
+        // 分页构造器
+        Integer page = setmeal.getPage();
+        Integer size = setmeal.getSize();
+        // 构建 缓存 key
+        String categoryId = null;
+        if (setmeal.getCategoryId() == null) {
+            LambdaQueryWrapper<Category> categoryLqw = new LambdaQueryWrapper<>();
+            categoryLqw.eq(Category::getType,2);
+            categoryLqw.orderByAsc(Category::getSort);
+            List<Category> categoryRes = categorySrv.list(categoryLqw);
+            categoryId = categoryRes.get(0).getId();
+        } else {
+            categoryId = setmeal.getCategoryId();
+        }
+        String redisKey = keys.getCategorySetmealRedisKey(categoryId,1,page,size);
+        String totalKey = keys.getCategorySetmealTotalRedisKey(categoryId);
+
+        // 先从缓存获取数据
+        list = (List<SetmealDto>) redisTemplate.opsForValue().get(redisKey);
+        if (list != null) {
+            dtoPage.setRecords(list);
+            Integer total = (Integer) redisTemplate.opsForValue().get(totalKey);
+            if (total != null) {
+                dtoPage.setTotal(total);
+            }
+            return Msg.success(Codes.OK,"ok",dtoPage);
+        }
+
+        // 没有缓存 查询数据库
+        Page<Setmeal> limited = new Page<>(page,size);
+        // 条件
+        LambdaQueryWrapper<Setmeal> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(Setmeal::getCategoryId,categoryId);
+        lqw.eq(Setmeal::getStatus,1);
+        lqw.orderByAsc(Setmeal::getSort);
+        lqw.orderByDesc(Setmeal::getUpdateTime);
+        srv.page(limited,lqw);
+        //DTO 扩展 分类
+
+        BeanUtils.copyProperties(limited,dtoPage,"records");
+        List<Setmeal> records = limited.getRecords();
+
+        list = records.stream().map((item) -> {
+            SetmealDto sDto = new SetmealDto();
+            BeanUtils.copyProperties(item,sDto);
+            String cId = item.getCategoryId();
+            Category c = categorySrv.getById(cId);
+            sDto.setCategory(c);
+            LambdaQueryWrapper<SetmealGoods> sgLqw = new LambdaQueryWrapper<>();
+            sgLqw.eq(SetmealGoods::getSetmealId,item.getId());
+            List<SetmealGoods> sgList = setmealGoodsSrv.list(sgLqw);
+            sDto.setSetmealGoodsList(sgList);
+            return sDto;
+        }).collect(Collectors.toList());
+        dtoPage.setRecords(list);
+        // 设置缓存数据
+        redisTemplate.opsForValue().set(redisKey,list,60, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(totalKey,dtoPage.getTotal(),60,TimeUnit.MINUTES);
+        return Msg.success(Codes.OK,"ok",dtoPage);
+    }
+
     /**
      * 添加套餐及套餐商品
      * @param setmealDto
      * @return
      */
     @PostMapping
+
     public Msg<String> add(@RequestBody SetmealDto setmealDto) {
         srv.saveWithGoods(setmealDto);
+
+        // 清除缓存
+        this.cleanRedis();
+
         return Msg.success(Codes.OK,"添加成功","ok");
     }
 
     @PutMapping
     public Msg<String> edit(@RequestBody SetmealDto setmealDto) {
         srv.editWithGoods(setmealDto);
+        // 清除缓存
+        this.cleanRedis();
         return Msg.success(Codes.OK,"修改成功","ok");
     }
 
@@ -135,6 +219,8 @@ public class SetmealController {
                     old.delete();
                 }
             }
+            // 清除缓存
+            this.cleanRedis();
             return Msg.success(Codes.OK,"删除成功","ok");
         } else {
             return Msg.error(Codes.Internal,"套餐状态错误","请检查套餐状态");
@@ -173,13 +259,26 @@ public class SetmealController {
                 }
             }
         });
+        // 清除缓存
+        this.cleanRedis();
         return Msg.success(Codes.OK,"批量删除成功","ok");
     }
 
     @GetMapping("/status")
     public Msg<String> batchEditStatus(@RequestParam List<String> ids,@RequestParam Integer status) {
         srv.batchEditStatus(ids,status);
+        // 清除缓存
+        this.cleanRedis();
         return Msg.success(Codes.OK,"批量修改成功","ok");
+    }
+
+    // 清除缓存数据
+    public void cleanRedis() {
+        String redisPrefixKey = keys.getCategorySetmealRedisKeyPrefix();
+        Set<Object> setmealKeys = redisTemplate.keys(redisPrefixKey);
+        if (setmealKeys != null) {
+            redisTemplate.delete(setmealKeys);
+        }
     }
 }
 

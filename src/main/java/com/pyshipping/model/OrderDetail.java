@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 @Data
 public class OrderDetail {
-    private static final long orderDetailVersionUID = 1L;
+    private static final long serialVersionUID = -1;
 
     private String id;
     private String name;

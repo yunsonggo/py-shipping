@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  */
 @Data
 public class Employee {
-    private static final long employeeVersionUID = 1L;
+    private static final long serialVersionUID = -1;
 
     private String id;
     private String name;

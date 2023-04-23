@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class Orders {
-    private static final long ordersVersionUID = 1L;
+    private static final long serialVersionUID = -1;
 
     private String id;
     private String sn; // 订单号

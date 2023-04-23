@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 
 @Data
 public class SetmealGoods {
+    private static final long serialVersionUID = -1;
+
     private String id;
     private String brandId;
     private String brandName;

@@ -10,6 +10,8 @@ import java.util.List;
 
 @Data
 public class SetmealDto extends Setmeal {
+    private static final long serialVersionUID = -1;
+
     @TableField(exist = false)
     private Category category;
     @TableField(exist = false)

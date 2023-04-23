@@ -25,10 +25,10 @@ public class CORSConfig implements WebMvcConfigurer {
                 .maxAge(76000);
     }
 
-    /**
-     * 扩展mvc框架的消息转换器
-     * @param converters
-     */
+  /**
+   * 扩展mvc框架的消息转换器
+   * @param converters
+   */
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         WebMvcConfigurer.super.extendMessageConverters(converters);
@@ -40,9 +40,9 @@ public class CORSConfig implements WebMvcConfigurer {
         converters.add(0,messageConverter);
     }
 
-//    @Override
-//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-//        registry.addResourceHandler("/static/**")
-//                .addResourceLocations("file:");
-//    }
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/static/**")
+                .addResourceLocations("file:");
+    }
 }

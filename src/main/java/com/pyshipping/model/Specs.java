@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  */
 @Data
 public class Specs {
-    private static final long specsVersionUID = 1L;
+    private static final long serialVersionUID = -1;
 
     private String id;
     private String name;
