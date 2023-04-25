@@ -5,6 +5,10 @@ import com.pyshipping.common.codes.Codes;
 import com.pyshipping.common.msg.Msg;
 import com.pyshipping.model.Category;
 import com.pyshipping.service.CategorySrv;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +18,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/categories")
+@Api(tags = "分类接口")
 public class CategoryController {
 
     @Autowired
@@ -26,6 +31,11 @@ public class CategoryController {
      * @return
      */
     @GetMapping("")
+    @ApiOperation(value = "用户访问,缓存套餐分页查询接口")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "page", value = "页码", required = true),
+            @ApiImplicitParam(name = "size", value = "每页数量", required = true),
+    })
     public Msg<List<Category>> list(Integer page, Integer size){
         // 条件构造器
         LambdaQueryWrapper<Category> lqw = new LambdaQueryWrapper<> ();

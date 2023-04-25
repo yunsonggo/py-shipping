@@ -1,6 +1,8 @@
 package com.pyshipping.common.msg;
 
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -8,10 +10,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Data
+@ApiModel("返回数据")
 public class Msg<T> implements Serializable {
+    private static final long serialVersionUID = -1;
+    @ApiModelProperty("响应返回码")
     private Integer code;
+    @ApiModelProperty("返回消息")
     private String msg;
+    @ApiModelProperty("返回错误")
     private String error;
+    @ApiModelProperty("返回数据")
     private T data;
     private Map map = new HashMap();
 

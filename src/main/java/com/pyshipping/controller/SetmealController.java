@@ -13,6 +13,9 @@ import com.pyshipping.service.BrandSrv;
 import com.pyshipping.service.CategorySrv;
 import com.pyshipping.service.SetmealGoodsSrv;
 import com.pyshipping.service.SetmealSrv;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +35,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("/setmeal")
+@Api(tags = "套餐接口")
 public class SetmealController {
     public static final String basePath = "src/main/resources/static/";
     @Autowired
@@ -53,6 +57,7 @@ public class SetmealController {
 
     // 条件分页数据
     @GetMapping("/list")
+    @ApiOperation(value = "套餐分页查询接口")
     public Msg<Page> list(Setmeal setmeal) {
         // 分页构造器
         Integer page = setmeal.getPage();
@@ -106,6 +111,7 @@ public class SetmealController {
 
     // 带缓存 分类 分页数据
     @GetMapping("/page")
+    @ApiOperation(value = "用户访问,缓存套餐分页查询接口")
     public Msg<Page> pageList(Setmeal setmeal) {
         List<SetmealDto> list = null;
         Page<SetmealDto> dtoPage = new Page<>();

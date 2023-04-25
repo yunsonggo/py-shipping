@@ -43,7 +43,7 @@ public class AuthMiddleware implements Filter {
         }
 
         String uri = request.getRequestURI();
-        log.info("拦截请求: {}",uri);
+
         String[] urls = new String[] {
                 "/employee/login",
                 "/employee/logout",
@@ -51,11 +51,16 @@ public class AuthMiddleware implements Filter {
                 "/upload/download",
                 "/sms/**",
                 "/goods/page",
-                "/setmeal/page"
+                "/setmeal/page",
+                "/doc.html",
+                "/webjars/**",
+                "/swagger-resources",
+                "/v2/api-docs"
         };
         // 判断是否放行
         if (isNext(uri,urls)) {
             // 放行
+            log.info("放行请求: {}",uri);
             filterChain.doFilter(request,response);
             return;
         }

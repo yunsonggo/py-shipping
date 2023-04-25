@@ -2,16 +2,21 @@ package com.pyshipping.model;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
+@ApiModel("套餐")
 public class Setmeal {
     private static final long serialVersionUID = -1;
 
+    @ApiModelProperty("主键")
     private String id;
+    @ApiModelProperty("分类ID")
     private String categoryId;
     private String name;
     private BigDecimal price;
